@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	connString = "mongodb://127.0.0.1:27017"
+	connString = "mongodb+srv://bejanhtc:246150Sab!@cluster0-6tflo.mongodb.net/cdr"
+	//connString = "mongodb://127.0.0.1:27018"
 )
 
 var (
@@ -23,7 +24,7 @@ var (
 
 // NewMongoClient returns new MongoDB client instance
 func NewMongoClient() (*mongo.Client, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	mgoClient, err = mongo.Connect(ctx, options.Client().SetSocketTimeout(5*time.Hour).ApplyURI(connString))
 	if err != nil {

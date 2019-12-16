@@ -34,6 +34,7 @@ csv-webapp is under agile development. There are still some parts that has to be
 
 ## Before using application
 
+**NOTE: if you will be using docker-compose skip this part**
 **NOTE: you have to download and install mongodb on your machine**
 
 * After downloading and installing mongodb on your machine, create a database and collection using terminal. You need to do this step for authentication to work properly.
@@ -57,17 +58,17 @@ $ db.users.insert({
 
 ## Example Usage
 
-1. Download the repository using git commands:
+* Download the repository using git commands:
 
 ```
 $ git clone <repository>
 ```
 
-2. Download and configure [golang](https://golang.org/dl/).
+* Download and configure [golang](https://golang.org/dl/).
 
-3. If you will be using Docker skip 4 step.
+* If you will be using Docker skip 4 step.
 
-4. On your machine run following commands:
+* On your machine run following commands:
 
 ```
 $ go build -ldflags="-r -w"
@@ -79,21 +80,21 @@ $ chmod u+x build.sh
   ./build.sh
 ```
 
-5. For Docker build run following commands:
+* For Docker build run following commands:
 
 ```
-$ docker build -t csv-webapp
+$ docker build -t csv-webapp_csv-webapp .
 
 //then run
 
-$ docker run -it -p 5050:5050 csv-webapp
+$ docker run -it -p 5050:5050 csv-webapp_csv-webapp
 
 //or if you prefer container running in background
 
 $ docker run -d -p 5050:5050 csv-webapp
 ```
 
-6. For Docker Compose run following command:
+* For Docker Compose run following command:
 
 ```
 $ docker-compose up
