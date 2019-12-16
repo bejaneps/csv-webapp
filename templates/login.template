@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <style>
+    *{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+    html{
+        height: 100%;
+    }
+    body{
+        font-family: 'Segoe UI', sans-serif;;
+        font-size: 1rem;
+        line-height: 1.6;
+        height: 100%;
+    }
+    .wrap {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fafafa;
+    }
+    .login-form{
+        width: 350px;
+        margin: 0 auto;
+        border: 1px solid #ddd;
+        padding: 2rem;
+        background: #ffffff;
+    }
+    .form-input{
+        background: #fafafa;
+        border: 1px solid #eeeeee;
+        padding: 12px;
+        width: 100%;
+    }
+    .form-group{
+        margin-bottom: 1rem;
+    }
+    .form-button{
+        background: #69d2e7;
+        border: 1px solid #ddd;
+        color: #ffffff;
+        padding: 10px;
+        width: 100%;
+        text-transform: uppercase;
+    }
+    .form-button:hover{
+        background: #69c8e7;
+    }
+    .form-header{
+        text-align: center;
+        margin-bottom : 2rem;
+    }
+    p{
+      color: red;
+    }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <form class="login-form" action="http://127.0.0.1:5050/login"
+        methods="post" enctype="application/x-www-form-urlencoded">
+        {{$err := .}}
+        {{if $err}}
+        <div class="form-header">
+          <p>{{$err}}</p>
+        </div>
+        {{else}}
+        <div class="form-header">
+                <p>login to access your dashboard</p>
+        </div>
+        {{end}}
+        <!--Email Input-->
+        <div class="form-group">
+          <input type="text" name="email" class="form-input"
+            placeholder="email@example.com" required>
+        </div>
+        <!--Password Input-->
+        <div class="form-group">
+          <input type="password" name="password" class="form-input"
+            placeholder="password" required>
+        </div>
+        <!--Login Button-->
+        <div class="form-group">
+          <button class="form-button" type="submit">Login</button>
+        </div>
+      </form>
+    </div><!--/.wrap-->
+  </body>
+
+</html>

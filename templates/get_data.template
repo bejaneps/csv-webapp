@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <style>
+  html {
+    height: 100%;
+  }
+
+  .bg-light {
+    background-color: rgba(255, 255, 255, 0.76) !important
+  }
+
+  body {
+    background:
+      -webkit-linear-gradient(315deg, hsla(35, 95%, 55%, 1) 0%, hsla(35, 95%, 55%, 0) 70%),
+      -webkit-linear-gradient(65deg, hsla(140, 90%, 50%, 1) 10%, hsla(140, 90%, 50%, 0) 80%),
+      -webkit-linear-gradient(135deg, hsla(225, 95%, 50%, 1) 15%, hsla(225, 95%, 50%, 0) 80%),
+      -webkit-linear-gradient(205deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
+    background:
+      linear-gradient(135deg, hsla(35, 95%, 55%, 1) 0%, hsla(35, 95%, 55%, 0) 70%),
+      linear-gradient(25deg, hsla(140, 90%, 50%, 1) 10%, hsla(140, 90%, 50%, 0) 80%),
+      linear-gradient(315deg, hsla(225, 95%, 50%, 1) 15%, hsla(225, 95%, 50%, 0) 80%),
+      linear-gradient(245deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
+    font-family: 'Lato', sans-serif;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 4em;
+  }
+
+  h1, h3 {
+    text-shadow: 1px 1px 3px black;
+  }
+
+  hr {
+    width: 40%;
+    border-top: 1px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  #content {
+    padding-top: 5%;
+    text-align: center;
+  }
+
+  .btn-group-lg > .btn, .btn-lg {
+    padding: 0.1rem 1rem;
+    margin-left: 3rem;
+  }
+  </style>
+    <meta charset="UTF-8">
+    <title>CDR WebApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous">
+  </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous">
+  </script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous">
+  </script>
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700"
+      rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">CDR WebApp</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+          data-target="#alts" aria-controls="alts"
+          aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="alts">
+          <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="#">Config <i class="fas fa-cog"></i></a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <section id="content">
+            <form action="http://127.0.0.1:5050/dashboard"
+            methods="get" enctype="application/x-www-form-urlencoded">
+            <input class="btn btn-light btn-lg" type="submit" name="get_data" value="Get Data" />
+            <input class="btn btn-light btn-lg" type="submit" name="get_report" value="Generate Report" />
+            <br />
+            <br />
+            </form>
+          </section>
+        </div>
+      </div>
+      {{if .}}
+      <table class="table table-dark table-stripped table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Disconnect Datetime</th>
+            <th scope="col">Charged Duration (Seconds)</th>
+            <th scope="col">Charged Duration (Minutes)</th>
+            <th scope="col">Calling Number</th>
+            <th scope="col">Called Number Location</th>
+            <th scope="col">Charged Amount</th>
+            <th scope="col">Currency Code</th>
+            <th scope="col">Completion Code ID</th>
+            <th scope="col">Completion Code Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range $i, $v := .}}
+          <tr>
+            <th scope="row">{{$i}}</th>
+            <td>{{$v.Six}}</td>
+            <td>{{$v.Ten}}</td>
+            <td>{{$v.Eleven}}</td>
+            <td>{{$v.Thirteen}}</td>
+            <td>{{$v.Twenty}}</td>
+            <td>{{$v.TwentyTwo}}</td>
+            <td>{{$v.TwentyThree}}</td>
+            <td>{{$v.TwentyFive}}</td>
+            <td>{{$v.TwentySix}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+  </body>
+
+</html>
