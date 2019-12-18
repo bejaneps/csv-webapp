@@ -35,11 +35,13 @@ func init() {
 		log.Fatal(err)
 	}
 
-	log.Printf("[INFO]: Downloading ftp files\n")
-	err := crud.DownloadFTPFiles()
-	if err != nil {
-		log.Fatal(err)
-	}
+	/*
+		log.Printf("[INFO]: Downloading ftp files\n")
+		err := crud.DownloadFTPFiles()
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
 
 	logger, err = os.Create("logs/log.txt")
 	if err != nil {

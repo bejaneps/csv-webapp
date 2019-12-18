@@ -88,6 +88,7 @@ func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 	if err != nil {
 		return "", errors.New("createFTPFile(): " + err.Error())
 	}
+	defer f.Close()
 
 	log.Printf("[INFO]: created %s file\n", f.Name())
 
@@ -95,11 +96,7 @@ func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
-	if err := resp.Close(); err != nil {
-		return "", errors.New("createFTPFile(): " + err.Error())
-	}
-
-	cmd := exec.Command("gunzip", f.Name())
+	cmd := exec.Command("gunzip", dir+"/"+f.Name())
 	if err = cmd.Run(); err != nil {
 		return "", errors.New("createFTPFile(): " + err.Error())
 	}

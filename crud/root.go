@@ -49,8 +49,9 @@ func GenerateData(timeRange string) error {
 
 		noGZName := strings.TrimSuffix(v.Name, ".gz")
 
+		currDir, _ := os.Getwd()
 		if ok := hasEntry(noGZName, mgoEntries); !ok {
-			fileName, err := createFTPFile(v.Name, "files", ftpConn)
+			fileName, err := createFTPFile(v.Name, currDir+"/"+"files", ftpConn)
 			if err != nil {
 				return errors.New("GenerateData(): " + err.Error())
 			}
