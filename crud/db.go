@@ -16,7 +16,7 @@ import (
 func CheckLoginInfo(info models.LoginInfo) (bool, error) {
 	client, err := auth.NewMongoClient()
 	if err != nil {
-		return false, err
+		return false, errors.New("CheckLoginInfo(): " + err.Error())
 	}
 
 	collection := client.Database("cdr").Collection("users")
@@ -25,21 +25,21 @@ func CheckLoginInfo(info models.LoginInfo) (bool, error) {
 	user := bson.M{"email": info.Email, "password": info.Password}
 	err = collection.FindOne(context.TODO(), user).Decode(&temp)
 	if err != nil {
-		return false, err
+		return false, errors.New("CheckLoginInfo(): " + err.Error())
 	}
 
 	if temp.Email != "" && temp.Password != "" {
 		return true, nil
 	}
 
-	return false, errors.New("login: wrong email or password")
+	return false, errors.New("CheckLoginInfo(): " + err.Error())
 }
 
 // getMongoCollections returns names of collections in MongoDB
 func getMongoCollections(client *mongo.Client) ([]string, error) {
 	names, err := client.Database("cdr").ListCollectionNames(context.TODO(), bson.D{})
 	if err != nil {
-		return nil, err
+		return nil, errors.New("getMongoCollections(): " + err.Error())
 	}
 
 	return names, nil
@@ -70,7 +70,7 @@ func createMongoCollection(name string, mgoClient *mongo.Client) error {
 
 	_, err := collection.InsertMany(context.TODO(), temp)
 	if err != nil {
-		return nil
+		return errors.New("createMongoCollection(): " + err.Error())
 	}
 
 	log.Printf("[INFO]: created %s mongo collection\n", collection.Name())

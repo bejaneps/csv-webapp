@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/bejaneps/csv-webapp/models"
@@ -28,13 +29,13 @@ func NewMongoClient() (*mongo.Client, error) {
 
 	mgoClient, err = mongo.Connect(ctx, options.Client().SetSocketTimeout(5*time.Hour).ApplyURI(connString))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("NewMongoClient(): " + err.Error())
 	}
 
 	// Check the connection
 	err = mgoClient.Ping(context.TODO(), nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("NewMongoClient(): " + err.Error())
 	}
 
 	return mgoClient, nil
@@ -44,12 +45,12 @@ func NewMongoClient() (*mongo.Client, error) {
 func NewFTPConnection() (*ftp.ServerConn, error) {
 	ftpConn, err = ftp.Dial(models.FTPURI, ftp.DialWithTimeout(5*time.Second))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("NewFTPConnection(): " + err.Error())
 	}
 
 	err = ftpConn.Login(models.FTPLogin, models.FTPPassword)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("NewFTPConnection(): " + err.Error())
 	}
 
 	return ftpConn, nil
@@ -58,7 +59,7 @@ func NewFTPConnection() (*ftp.ServerConn, error) {
 // CloseMongoClient closes a connectio to MongoDB cluster
 func CloseMongoClient() error {
 	if err := mgoClient.Disconnect(context.TODO()); err != nil {
-		return err
+		return errors.New("CloseMongoClient(): " + err.Error())
 	}
 
 	return nil
@@ -67,7 +68,7 @@ func CloseMongoClient() error {
 // CloseFTPConnection closes a connection to ftp server
 func CloseFTPConnection() error {
 	if err := ftpConn.Quit(); err != nil {
-		return err
+		return errors.New("CloseFTPConnection(): " + err.Error())
 	}
 
 	return nil

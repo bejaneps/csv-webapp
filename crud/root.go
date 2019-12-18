@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -24,17 +25,17 @@ func GenerateData(timeRange string) error {
 
 	mgoClient, err := auth.NewMongoClient()
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	mgoEntries, err := getMongoCollections(mgoClient)
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	ftpEntries, err := getFTPEntries(ftpConn)
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	for _, v := range ftpEntries {
@@ -48,17 +49,17 @@ func GenerateData(timeRange string) error {
 		if ok := hasEntry(noGZName, mgoEntries); !ok {
 			fileName, err := createFTPFile(v.Name, "files", ftpConn)
 			if err != nil {
-				return err
+				return errors.New("GenerateData(): " + err.Error())
 			}
 
 			err = parseCSV(fileName)
 			if err != nil {
-				return err
+				return errors.New("GenerateData(): " + err.Error())
 			}
 
 			err = createMongoCollection(noGZName, mgoClient)
 			if err != nil {
-				return err
+				return errors.New("GenerateData(): " + err.Error())
 			}
 		}
 	}
@@ -68,19 +69,19 @@ func GenerateData(timeRange string) error {
 
 	start, end, err := parseHTMLTime(timeRange)
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	rangeEntries, err := getRangeEntries(start, end, ftpConn)
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	for _, v := range rangeEntries {
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
 		err = parseCSVRange(fileName)
 		if err != nil {
-			return err
+			return errors.New("GenerateData(): " + err.Error())
 		}
 	}
 
@@ -93,25 +94,25 @@ func GenerateReport(timeRange string) error {
 
 	ftpConn, err := auth.NewFTPConnection()
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 	defer auth.CloseFTPConnection()
 
 	start, end, err := parseHTMLTime(timeRange)
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	rangeEntries, err := getRangeEntries(start, end, ftpConn)
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 
 	for _, v := range rangeEntries {
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
 		err = parseCSVRange(fileName)
 		if err != nil {
-			return err
+			return errors.New("GenerateData(): " + err.Error())
 		}
 	}
 

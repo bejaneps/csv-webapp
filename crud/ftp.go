@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -69,43 +70,43 @@ func getRangeEntries(start, end time.Time, conn *ftp.ServerConn) ([]*ftp.Entry, 
 func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 	resp, err := conn.Retr(name)
 	if err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 	defer resp.Close()
 
 	currDir, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	err = os.Chdir(dir)
 	if err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	f, err := os.Create(name)
 	if err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	log.Printf("[INFO]: created %s file\n", f.Name())
 
 	if _, err := io.Copy(f, resp); err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	if err := resp.Close(); err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	cmd := exec.Command("gunzip", f.Name())
 	if err = cmd.Run(); err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	err = os.Chdir(currDir)
 	if err != nil {
-		return "", err
+		return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	return strings.TrimSuffix(dir+"/"+f.Name(), ".gz"), nil
@@ -121,21 +122,21 @@ func DownloadFTPFiles(e chan error) {
 
 	currDir, err := os.Getwd()
 	if err != nil {
-		e <- err
+		e <- errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 
 	var files []string
 	err = filepath.Walk(currDir+"/files", func(path string, info os.FileInfo, err error) error {
 		files = append(files, info.Name()+".gz")
-		return err
+		return errors.New("DownloadFTPFiles(): " + err.Error())
 	})
 	if err != nil {
-		e <- err
+		e <- errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 
 	ftpFiles, err := ftpConn.NameList("/")
 	if err != nil {
-		e <- err
+		e <- errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 
 	for _, v := range ftpFiles {
@@ -143,11 +144,11 @@ func DownloadFTPFiles(e chan error) {
 		if ok := hasEntry(v, files); !ok {
 			name, err := createFTPFile(v, currDir+"/files", ftpConn)
 			if err != nil {
-				e <- err
+				e <- errors.New("DownloadFTPFiles(): " + err.Error())
 			}
 			log.Printf("[INFO]: file %s has been downloaded\n", name)
 		}
 	}
 
-	e <- nil
+	e <- errors.New("DownloadFTPFiles(): " + err.Error())
 }

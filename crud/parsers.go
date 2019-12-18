@@ -131,18 +131,18 @@ func parseCSV(file string) error {
 func parseCSVRange(file string) error {
 	f, err := os.Open(file)
 	if err != nil {
-		return err
+		return errors.New("parseCSVRange(): " + err.Error())
 	}
 	defer f.Close()
 
 	content, err := ioutil.ReadAll(f)
 	if err != nil {
-		return err
+		return errors.New("parseCSVRange(): " + err.Error())
 	}
 
 	temp := []models.CDRModified{}
 	if err = csvutil.Unmarshal(content, &temp); err != nil {
-		return err
+		return errors.New("parseCSVRange(): " + err.Error())
 	}
 
 	for _, v := range temp {
@@ -170,7 +170,7 @@ func ParseTemplates() error {
 
 	models.T, err = template.ParseGlob("templates/*")
 	if err != nil {
-		return err
+		return errors.New("ParseTemplates(): " + err.Error())
 	}
 
 	return nil
@@ -180,7 +180,7 @@ func ParseTemplates() error {
 func ParseINI(file string) error {
 	cfg, err := ini.Load(file)
 	if err != nil {
-		return err
+		return errors.New("ParseINI(): " + err.Error())
 	}
 
 	models.FTPURI = cfg.Section("common").Key("ftp_uri").String()
