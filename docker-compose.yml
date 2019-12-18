@@ -2,6 +2,5 @@ version: '3'
 services:
   csv-webapp:
     build: .
-    container_name: 'csv-webapp'
     ports:
         - '5050:5050'

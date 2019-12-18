@@ -128,7 +128,10 @@ func DownloadFTPFiles() error {
 	var files []string
 	err = filepath.Walk(currDir+"/files", func(path string, info os.FileInfo, err error) error {
 		files = append(files, info.Name()+".gz")
-		return errors.New("DownloadFTPFiles(): " + err.Error())
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 	if err != nil {
 		return errors.New("DownloadFTPFiles(): " + err.Error())
@@ -140,6 +143,15 @@ func DownloadFTPFiles() error {
 	}
 
 	for _, v := range ftpEntries {
+		//empty file
+		if v.Size == 297 {
+			continue
+		}
+		//monthly files
+		if len(v.Name) > 38 {
+			continue
+		}
+
 		if ok := hasEntry(v.Name, files); !ok {
 			name, err := createFTPFile(v.Name, currDir+"/files", ftpConn)
 			if err != nil {
@@ -149,5 +161,5 @@ func DownloadFTPFiles() error {
 		}
 	}
 
-	return errors.New("DownloadFTPFiles(): " + err.Error())
+	return nil
 }
