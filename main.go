@@ -56,10 +56,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	if err = <-e; err != nil {
-		log.Fatal(err)
-	}
-
 	gin.SetMode("debug")
 }
 
