@@ -19,7 +19,7 @@ func cleanTmp(fileName string) {
 func GenerateData(timeRange string) error {
 	ftpConn, err := auth.NewFTPConnection()
 	if err != nil {
-		return err
+		return errors.New("GenerateData(): " + err.Error())
 	}
 	defer auth.CloseFTPConnection()
 
@@ -41,6 +41,9 @@ func GenerateData(timeRange string) error {
 	for _, v := range ftpEntries {
 		//empty file
 		if v.Size == 297 {
+			continue
+		} //montly files
+		if len(v.Name) > 38 {
 			continue
 		}
 
@@ -78,6 +81,14 @@ func GenerateData(timeRange string) error {
 	}
 
 	for _, v := range rangeEntries {
+		//empty file
+		if v.Size == 297 {
+			continue
+		}
+		//monthly files
+		if len(v.Name) > 38 {
+			continue
+		}
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
 		err = parseCSVRange(fileName)
 		if err != nil {
@@ -109,6 +120,15 @@ func GenerateReport(timeRange string) error {
 	}
 
 	for _, v := range rangeEntries {
+		//empty file
+		if v.Size == 297 {
+			continue
+		}
+		//monthly files
+		if len(v.Name) > 38 {
+			continue
+		}
+
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
 		err = parseCSVRange(fileName)
 		if err != nil {

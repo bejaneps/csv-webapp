@@ -23,23 +23,23 @@ import (
 func CSVToXLSX() (string, error) {
 	content, err := csvutil.Marshal(&models.D.Datum)
 	if err != nil {
-		return "", err
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	err = os.Chdir("/tmp")
 	if err != nil {
-		return "", err
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	csvFile, err := os.Create("report.csv")
 	if err != nil {
-		return "", err
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 	defer csvFile.Close()
 
 	xlsxTemp, err := os.Create("report.xlsx")
 	if err != nil {
-		return "", err
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 	defer xlsxTemp.Close()
 
@@ -57,7 +57,7 @@ func CSVToXLSX() (string, error) {
 	xlsxFile := xlsx.NewFile()
 	sheet, err := xlsxFile.AddSheet(csvFile.Name())
 	if err != nil {
-		return "", err
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	fields, err := reader.Read()
@@ -68,14 +68,17 @@ func CSVToXLSX() (string, error) {
 			cell.Value = field
 		}
 		fields, err = reader.Read()
+		if err != nil {
+			return "", errors.New("CSVToXLSX(): " + err.Error())
+		}
 	}
 	if err != nil {
-		return "", err
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	err = xlsxFile.Save(xlsxTemp.Name())
 	if err != nil {
-		return "", nil
+		return "", errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	return "/tmp/" + xlsxTemp.Name(), nil
@@ -94,12 +97,12 @@ func parseHTMLTime(t string) (start, end time.Time, err error) {
 	//convert it to time type
 	pStartRange, err := time.Parse(time.RFC3339, startRange)
 	if err != nil {
-		return time.Time{}, time.Time{}, err
+		return time.Time{}, time.Time{}, errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	pEndRange, err := time.Parse(time.RFC3339, endRange)
 	if err != nil {
-		return time.Time{}, time.Time{}, err
+		return time.Time{}, time.Time{}, errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	return pStartRange, pEndRange, nil
@@ -115,11 +118,11 @@ func parseCSV(file string) error {
 
 	content, err := ioutil.ReadAll(f)
 	if err != nil {
-		return err
+		return errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	if err = csvutil.Unmarshal(content, &models.D.Datum); err != nil {
-		return err
+		return errors.New("CSVToXLSX(): " + err.Error())
 	}
 
 	log.Printf("[INFO]: parsed %s file\n", f.Name())

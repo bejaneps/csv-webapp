@@ -113,16 +113,16 @@ func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 }
 
 // DownloadFTPFiles downloads all ftp files, if they are not downloaded yet
-func DownloadFTPFiles(e chan error) {
+func DownloadFTPFiles() error {
 	ftpConn, err := auth.NewFTPConnection()
 	if err != nil {
-		e <- err
+		return errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 	defer auth.CloseFTPConnection()
 
 	currDir, err := os.Getwd()
 	if err != nil {
-		e <- errors.New("DownloadFTPFiles(): " + err.Error())
+		return errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 
 	var files []string
@@ -131,24 +131,23 @@ func DownloadFTPFiles(e chan error) {
 		return errors.New("DownloadFTPFiles(): " + err.Error())
 	})
 	if err != nil {
-		e <- errors.New("DownloadFTPFiles(): " + err.Error())
+		return errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 
-	ftpFiles, err := ftpConn.NameList("/")
+	ftpEntries, err := ftpConn.List("/")
 	if err != nil {
-		e <- errors.New("DownloadFTPFiles(): " + err.Error())
+		return errors.New("DownloadFTPFiles(): " + err.Error())
 	}
 
-	for _, v := range ftpFiles {
-		v = strings.TrimPrefix(v, "/")
-		if ok := hasEntry(v, files); !ok {
-			name, err := createFTPFile(v, currDir+"/files", ftpConn)
+	for _, v := range ftpEntries {
+		if ok := hasEntry(v.Name, files); !ok {
+			name, err := createFTPFile(v.Name, currDir+"/files", ftpConn)
 			if err != nil {
-				e <- errors.New("DownloadFTPFiles(): " + err.Error())
+				return errors.New("DownloadFTPFiles(): " + err.Error())
 			}
 			log.Printf("[INFO]: file %s has been downloaded\n", name)
 		}
 	}
 
-	e <- errors.New("DownloadFTPFiles(): " + err.Error())
+	return errors.New("DownloadFTPFiles(): " + err.Error())
 }
