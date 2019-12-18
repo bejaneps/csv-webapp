@@ -57,6 +57,7 @@ func LoginHandler(c *gin.Context) {
 
 	c.SetCookie("auth", "yes", 86400, "/", "127.0.0.1", false, false)
 	c.SetCookie("auth", "yes", 86400, "/dashboard", "127.0.0.1", false, false)
+	c.SetCookie("auth", "yes", 86400, "/report", "127.0.0.1", false, false)
 
 	c.Redirect(http.StatusTemporaryRedirect, "/dashboard")
 	return

@@ -4,7 +4,7 @@ import "text/template"
 
 var (
 	// Datum contains all data from csv file
-	Datum []CDRModified
+	D Data
 
 	// T contains all parsed templates
 	T *template.Template
@@ -24,9 +24,22 @@ var (
 	Port string
 )
 
+// Data represents data that is passed to templates
+type Data struct {
+	Datum []CDRModified
+	TC    TotalCharged
+}
+
+// TotalCharged represents 'Charged duration in minutes summed up by categories'
+type TotalCharged struct {
+	FixedToMobile    float64
+	International    float64
+	National         float64
+	IntercapitalCity float64
+}
+
 // CDRModified represents a data from a cdr file, but with some columns removed
 type CDRModified struct {
-	FileName    string  `csv:"-" bson:"-"`
 	Five        string  `csv:"Connect Datetime" bson:"Connect Datetime"`
 	Six         string  `csv:"Disconnect Datetime" bson:"Disconnect Datetime"`
 	Ten         int     `csv:"Charged Duration (Seconds)" bson:"Charged Duration (Seconds)"`

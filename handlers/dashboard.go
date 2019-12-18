@@ -18,7 +18,19 @@ func DashboardHandler(c *gin.Context) {
 
 	//get data button pressed
 	if getData := c.Query("get_data"); getData != "" {
-		err := crud.GenerateData()
+		if getData == "Get Data" {
+			err := models.T.ExecuteTemplate(c.Writer, "get_data.template", nil)
+			if err != nil {
+				err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
+				if err != nil {
+					panic(err.Error())
+				}
+				return
+			}
+
+			return
+		}
+		err := crud.GenerateData(getData)
 		if err != nil {
 			err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
 			if err != nil {
@@ -27,7 +39,7 @@ func DashboardHandler(c *gin.Context) {
 			return
 		}
 
-		err = models.T.ExecuteTemplate(c.Writer, "get_data.template", models.Datum)
+		err = models.T.ExecuteTemplate(c.Writer, "get_data.template", models.D)
 		if err != nil {
 			err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
 			if err != nil {
@@ -35,8 +47,20 @@ func DashboardHandler(c *gin.Context) {
 			}
 			return
 		}
-	} else {
-		err := models.T.ExecuteTemplate(c.Writer, "get_data.template", nil)
+
+		return
+	} else if getReport := c.Query("get_report"); getReport != "" { //get report button pressed
+		if getReport == "Generate Report" {
+			err := models.T.ExecuteTemplate(c.Writer, "get_data.template", nil)
+			if err != nil {
+				err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
+				if err != nil {
+					panic(err.Error())
+				}
+				return
+			}
+		}
+		err := crud.GenerateReport(getReport)
 		if err != nil {
 			err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
 			if err != nil {
@@ -44,7 +68,17 @@ func DashboardHandler(c *gin.Context) {
 			}
 			return
 		}
+
+		c.Redirect(http.StatusTemporaryRedirect, "/report")
 	}
 
-	//report button pressed
+	err := models.T.ExecuteTemplate(c.Writer, "get_data.template", nil)
+	if err != nil {
+		err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
+		if err != nil {
+			panic(err.Error())
+		}
+		return
+	}
+	return
 }

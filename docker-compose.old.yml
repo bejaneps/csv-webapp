@@ -1,0 +1,23 @@
+version: '3'
+services:
+  mongodb:
+    image: 'mongo'
+    container_name: 'mongo-container'
+    environment: 
+      - MONGO_DATABASE=cdr
+      - MONGO_ROOT_USERNAME=paul
+      - MONGO_ROOT_PASSWORD=paul123
+    volumes:
+      - ./scripts/a-mongo.js:/docker-entrypoint-initdb.d/a-mongo.js:ro
+      - ./scripts/b-mongo.js:/docker-entrypoint-initdb.d/b-mongo.js:ro
+    ports:
+      - '27017-27019:27017-27019'
+
+  csv-webapp:
+    image: 'csv-webapp_csv-webapp'
+    build: .
+    depends_on: 
+      - mongodb
+    container_name: 'csv-webapp'
+    ports:
+        - '5050:5050'

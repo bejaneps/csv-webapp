@@ -57,14 +57,14 @@ func hasEntry(entry string, entries []string) bool {
 
 // createMongoCollection creates a collection in a Mongo DB
 func createMongoCollection(name string, mgoClient *mongo.Client) error {
-	if len(models.Datum) == 0 {
+	if len(models.D.Datum) == 0 {
 		return nil
 	}
 	collection := mgoClient.Database("cdr").Collection(name)
 
 	//can't use []Datum as type []interface{}
-	temp := make([]interface{}, len(models.Datum))
-	for i, v := range models.Datum {
+	temp := make([]interface{}, len(models.D.Datum))
+	for i, v := range models.D.Datum {
 		temp[i] = v
 	}
 

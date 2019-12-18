@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bejaneps/csv-webapp/auth"
 
@@ -37,6 +38,31 @@ func getLatestFTPFile(conn *ftp.ServerConn) (string, error) {
 	}
 
 	return latestFile.Name, nil
+}
+
+// getRangeEntries returns list of files between start and end dates from ftp
+func getRangeEntries(start, end time.Time, conn *ftp.ServerConn) ([]*ftp.Entry, error) {
+	ftpConn, err := auth.NewFTPConnection()
+	if err != nil {
+		return nil, err
+	}
+	defer auth.CloseFTPConnection()
+
+	entries, err := getFTPEntries(ftpConn)
+	if err != nil {
+		return nil, err
+	}
+
+	var rangeFiles []*ftp.Entry
+	for _, v := range entries {
+		if ok := v.Time.After(start); ok {
+			if ok := v.Time.Before(end); ok {
+				rangeFiles = append(rangeFiles, v)
+			}
+		}
+	}
+
+	return rangeFiles, nil
 }
 
 // createFTPFile gets file from a server & unzips it in a specified folder. Returns the name of created file

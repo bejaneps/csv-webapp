@@ -68,6 +68,8 @@ func main() {
 	router.GET("/", handlers.IndexHandler)
 	router.GET("/login", handlers.LoginHandler)
 	router.GET("/dashboard", handlers.DashboardHandler)
+	router.GET("/report", handlers.ReportHandler)
+	router.GET("/logout", handlers.LogoutHandler)
 
 	var server = &http.Server{
 		Addr:    models.Port,

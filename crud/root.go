@@ -4,17 +4,18 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bejaneps/csv-webapp/models"
+
 	"github.com/bejaneps/csv-webapp/auth"
 )
 
 // cleanTmp cleans files created in 'tmp' directory
 func cleanTmp(fileName string) {
-	_ = os.Remove("/tmp" + fileName)
-	_ = os.Remove("/tmp" + fileName + ".gz")
+	_ = os.Remove(fileName)
 }
 
 // GenerateData is a function for get data button
-func GenerateData() error {
+func GenerateData(timeRange string) error {
 	ftpConn, err := auth.NewFTPConnection()
 	if err != nil {
 		return err
@@ -26,12 +27,12 @@ func GenerateData() error {
 		return err
 	}
 
-	ftpEntries, err := getFTPEntries(ftpConn)
+	mgoEntries, err := getMongoCollections(mgoClient)
 	if err != nil {
 		return err
 	}
 
-	mgoEntries, err := getMongoCollections(mgoClient)
+	ftpEntries, err := getFTPEntries(ftpConn)
 	if err != nil {
 		return err
 	}
@@ -45,13 +46,12 @@ func GenerateData() error {
 		noGZName := strings.TrimSuffix(v.Name, ".gz")
 
 		if ok := hasEntry(noGZName, mgoEntries); !ok {
-			fileName, err := createFTPFile(v.Name, "/tmp", ftpConn)
+			fileName, err := createFTPFile(v.Name, "files", ftpConn)
 			if err != nil {
 				return err
 			}
 
 			err = parseCSV(fileName)
-			cleanTmp(fileName)
 			if err != nil {
 				return err
 			}
@@ -63,14 +63,56 @@ func GenerateData() error {
 		}
 	}
 
-	latest, err := getLatestFTPFile(ftpConn)
+	//for range files
+	models.D = models.Data{}
+
+	start, end, err := parseHTMLTime(timeRange)
 	if err != nil {
 		return err
 	}
 
-	err = parseCSV("files/" + strings.TrimSuffix(latest, ".gz"))
+	rangeEntries, err := getRangeEntries(start, end, ftpConn)
 	if err != nil {
 		return err
+	}
+
+	for _, v := range rangeEntries {
+		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
+		err = parseCSVRange(fileName)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GenerateReport is function for get report button
+func GenerateReport(timeRange string) error {
+	models.D = models.Data{}
+
+	ftpConn, err := auth.NewFTPConnection()
+	if err != nil {
+		return err
+	}
+	defer auth.CloseFTPConnection()
+
+	start, end, err := parseHTMLTime(timeRange)
+	if err != nil {
+		return err
+	}
+
+	rangeEntries, err := getRangeEntries(start, end, ftpConn)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range rangeEntries {
+		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
+		err = parseCSVRange(fileName)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

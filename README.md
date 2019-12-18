@@ -1,9 +1,5 @@
 # csv-webapp
 
-![Build status][logo]
-
-[logo]: docs/passing.svg
-
 ## What is csv-webapp?
 
 csv-webapp was developed for the ThisSolution. Description of a web-application:
@@ -35,6 +31,7 @@ csv-webapp is under agile development. There are still some parts that has to be
 ## Before using application
 
 **NOTE: if you will be using docker-compose skip this part**
+
 **NOTE: you have to download and install mongodb on your machine**
 
 * After downloading and installing mongodb on your machine, create a database and collection using terminal. You need to do this step for authentication to work properly.
