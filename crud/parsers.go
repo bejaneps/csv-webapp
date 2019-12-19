@@ -1,7 +1,6 @@
 package crud
 
 import (
-	"encoding/csv"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -18,70 +17,76 @@ import (
 	"github.com/bejaneps/csvutil"
 )
 
-// CSVToXLSX generates a csv file, then converts it to xlsx.
-// Returns a full path to a file
-func CSVToXLSX() (string, error) {
-	content, err := csvutil.Marshal(&models.D.Datum)
-	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	err = os.Chdir("/tmp")
-	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	csvFile, err := os.Create("report.csv")
-	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
-	}
-	defer csvFile.Close()
-
-	xlsxTemp, err := os.Create("report.xlsx")
-	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
-	}
-	defer xlsxTemp.Close()
-
-	b, err := csvFile.Write(content)
-	if err != nil {
-		return "", err
-	}
-	if b == 0 {
-		return "", errors.New("write: no bytes written")
-	}
-
-	reader := csv.NewReader(csvFile)
-	reader.Comma = rune(',')
-
+// CSVToXLSX generates a csv file, then converts it to xlsx. Takes name of a file as a parameter.
+// Returns a file itself
+func CSVToXLSX(name string) (*os.File, error) {
 	xlsxFile := xlsx.NewFile()
-	sheet, err := xlsxFile.AddSheet(csvFile.Name())
+
+	sheet, err := xlsxFile.AddSheet("Sheet1")
 	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
+		return nil, errors.New("CSVToXLSX(): " + err.Error())
 	}
 
-	fields, err := reader.Read()
-	for err == nil {
-		row := sheet.AddRow()
-		for _, field := range fields {
-			cell := row.AddCell()
-			cell.Value = field
+	//writing headers
+	headers := struct {
+		Five      string `csv:"0"`
+		Nineteen  string `csv:"1"`
+		TwentyOne string `csv:"2"`
+	}{
+		"Connect Datetime",
+		"Called Number",
+		"Location Pair Category",
+	}
+
+	row := sheet.AddRow()
+	row.WriteStruct(&headers, -1)
+
+	//writing data
+	for _, val := range models.D.Datum {
+		//writing report
+		report := struct {
+			Five      string `csv:"0"`
+			Nineteen  int    `csv:"1"`
+			TwentyOne string `csv:"2"`
+		}{
+			val.Five,
+			val.Nineteen,
+			val.TwentyOne,
 		}
-		fields, err = reader.Read()
-		if err != nil {
-			return "", errors.New("CSVToXLSX(): " + err.Error())
-		}
-	}
-	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
+		row = sheet.AddRow()
+		row.WriteStruct(&report, -1)
 	}
 
-	err = xlsxFile.Save(xlsxTemp.Name())
+	//writing headers of last row of report
+	lHeaders := struct {
+		FixedToMobile    string `csv:"0"`
+		National         string `csv:"1"`
+		International    string `csv:"2"`
+		IntercapitalCity string `csv:"3"`
+	}{
+		"Fixed to Mobile",
+		"National",
+		"International",
+		"Intercapital City",
+	}
+	row = sheet.AddRow()
+	row.WriteStruct(&lHeaders, -1)
+
+	//writing last row of report
+	row = sheet.AddRow()
+	row.WriteStruct(&models.D.TC, -1)
+
+	err = xlsxFile.Save("/tmp/" + name)
 	if err != nil {
-		return "", errors.New("CSVToXLSX(): " + err.Error())
+		return nil, errors.New("CSVToXLSX(): " + err.Error())
 	}
 
-	return "/tmp/" + xlsxTemp.Name(), nil
+	f, err := os.Open("/tmp/" + name)
+	if err != nil {
+		return nil, errors.New("CSVToXLSX(): " + err.Error())
+	}
+
+	return f, nil
 }
 
 // parseHTMLTime parses time that is get from a server

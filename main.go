@@ -35,14 +35,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	/*
-		log.Printf("[INFO]: Downloading ftp files\n")
-		err := crud.DownloadFTPFiles()
-		if err != nil {
-			log.Fatal(err)
-		}
-	*/
-
 	logger, err = os.Create("logs/log.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -70,6 +62,7 @@ func main() {
 	router.GET("/dashboard", handlers.DashboardHandler)
 	router.GET("/report", handlers.ReportHandler)
 	router.GET("/logout", handlers.LogoutHandler)
+	router.GET("/report/download", handlers.ReportDownloadHandler)
 
 	var server = &http.Server{
 		Addr:    models.Port,
