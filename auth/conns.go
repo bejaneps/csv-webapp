@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	connString = "mongodb+srv://bejanhtc:246150Sab!@cluster0-6tflo.mongodb.net/cdr"
-	//connString = "mongodb://127.0.0.1:27018"
+	//connString = "mongodb+srv://bejanhtc:246150Sab!@cluster0-6tflo.mongodb.net/cdr"
+	connString = "mongodb://mongodb:27017"
 )
 
 var (
@@ -43,7 +43,7 @@ func NewMongoClient() (*mongo.Client, error) {
 
 // NewFTPConnection returns a connection to ftp server
 func NewFTPConnection() (*ftp.ServerConn, error) {
-	ftpConn, err = ftp.Dial(models.FTPURI, ftp.DialWithTimeout(5*time.Second))
+	ftpConn, err = ftp.Dial(models.FTPURI, ftp.DialWithTimeout(10*time.Second))
 	if err != nil {
 		return nil, errors.New("NewFTPConnection(): " + err.Error())
 	}

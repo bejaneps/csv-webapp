@@ -27,6 +27,7 @@ func GenerateData(timeRange string) error {
 	if err != nil {
 		return errors.New("GenerateData(): " + err.Error())
 	}
+	defer auth.CloseMongoClient()
 
 	mgoEntries, err := getMongoCollections(mgoClient)
 	if err != nil {
@@ -91,7 +92,7 @@ func GenerateData(timeRange string) error {
 			continue
 		}
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
-		err = parseCSVRange(fileName)
+		err = parseCSV(fileName)
 		if err != nil {
 			return errors.New("GenerateData(): " + err.Error())
 		}
@@ -131,7 +132,7 @@ func GenerateReport(timeRange string) error {
 		}
 
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
-		err = parseCSVRange(fileName)
+		err = parseCSV(fileName)
 		if err != nil {
 			return errors.New("GenerateData(): " + err.Error())
 		}

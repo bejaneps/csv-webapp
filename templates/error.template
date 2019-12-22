@@ -23,7 +23,7 @@
                     Sorry, an error has occured,  {{.}}
                 </div>
                 <div class="error-actions">
-                    <a href="http://127.0.0.1/" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-home"></span>
+                    <a href="http://127.0.0.1:5050/" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-home"></span>
                         Take Me Home </a>
                 </div>
             </div>

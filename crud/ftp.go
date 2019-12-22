@@ -98,7 +98,8 @@ func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 
 	cmd := exec.Command("gunzip", dir+"/"+f.Name())
 	if err = cmd.Run(); err != nil {
-		return "", errors.New("createFTPFile(): " + err.Error())
+		os.Remove(f.Name())
+		//return "", errors.New("createFTPFile(): " + err.Error())
 	}
 
 	err = os.Chdir(currDir)

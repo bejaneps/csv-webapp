@@ -57,6 +57,10 @@ func CSVToXLSX(name string) (*os.File, error) {
 		row.WriteStruct(&report, -1)
 	}
 
+	//blank rows
+	sheet.AddRow()
+	sheet.AddRow()
+
 	//writing headers of last row of report
 	lHeaders := struct {
 		FixedToMobile    string `csv:"0"`
@@ -124,28 +128,6 @@ func parseCSV(file string) error {
 	content, err := ioutil.ReadAll(f)
 	if err != nil {
 		return errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	if err = csvutil.Unmarshal(content, &models.D.Datum); err != nil {
-		return errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	log.Printf("[INFO]: parsed %s file\n", f.Name())
-
-	return nil
-}
-
-// parseCSV parses a csv file and unmarshals all data in slice struct
-func parseCSVRange(file string) error {
-	f, err := os.Open(file)
-	if err != nil {
-		return errors.New("parseCSVRange(): " + err.Error())
-	}
-	defer f.Close()
-
-	content, err := ioutil.ReadAll(f)
-	if err != nil {
-		return errors.New("parseCSVRange(): " + err.Error())
 	}
 
 	temp := []models.CDRModified{}

@@ -18,6 +18,7 @@ func CheckLoginInfo(info models.LoginInfo) (bool, error) {
 	if err != nil {
 		return false, errors.New("CheckLoginInfo(): " + err.Error())
 	}
+	defer auth.CloseMongoClient()
 
 	collection := client.Database("cdr").Collection("users")
 

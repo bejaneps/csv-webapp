@@ -67,6 +67,8 @@ func ReportDownloadHandler(c *gin.Context) {
 		}
 		return
 	}
+	defer file.Close()
+
 	fileStats, _ := file.Stat()
 
 	extraHeaders := map[string]string{
