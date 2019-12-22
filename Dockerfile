@@ -6,7 +6,6 @@ ADD . /csv-webapp
 
 COPY ./scripts/a-mongo.js /docker-entrypoint-initdb.d/
 COPY ./scripts/b-mongo.js /docker-entrypoint-initdb.d/
-COPY ./scripts/mongod.conf /etc/
 
 WORKDIR /csv-webapp
 
