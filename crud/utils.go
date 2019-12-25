@@ -60,7 +60,7 @@ func generateXLSX(button string) (*os.File, error) {
 			row.WriteStruct(&val, -1)
 		}
 	} else {
-		headers := []string{"Connect Datetime", "Called Number", "Location Pair Category"}
+		headers := []string{"Connect Datetime", "Charged Duration (Seconds)", "Called Number", "Location Pair Category", "Sell"}
 
 		row := sheet.AddRow()
 		row.WriteSlice(&headers, -1)
@@ -70,11 +70,13 @@ func generateXLSX(button string) (*os.File, error) {
 			//writing report
 			report := struct {
 				Five      string  `csv:"0"`
-				Nineteen  int     `csv:"1"`
-				TwentyOne string  `csv:"2"`
-				Sell      float64 `csv:"3"`
+				Ten       int     `csv:"1"`
+				Nineteen  int     `csv:"2"`
+				TwentyOne string  `csv:"3"`
+				Sell      float64 `csv:"4"`
 			}{
 				val.Five,
+				val.Ten,
 				val.Nineteen,
 				val.TwentyOne,
 				val.Sell,
@@ -92,21 +94,9 @@ func generateXLSX(button string) (*os.File, error) {
 		sheet.AddRow()
 
 		//writing headers of last row of report
-		lHeaders := struct {
-			FixedToMobile    string `csv:"0"`
-			National         string `csv:"1"`
-			International    string `csv:"2"`
-			IntercapitalCity string `csv:"3"`
-			Special          string `csv:"4"`
-		}{
-			"Fixed to Mobile",
-			"National",
-			"International",
-			"Intercapital City",
-			"Special",
-		}
+		lHeaders := []string{"Fixed to Mobile", "National", "International", "Intercapital City", "Special"}
 		row = sheet.AddRow()
-		row.WriteStruct(&lHeaders, -1)
+		row.WriteSlice(&lHeaders, -1)
 
 		//writing last row of report
 		row = sheet.AddRow()
