@@ -5,38 +5,32 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bejaneps/csv-webapp/models"
-
 	"github.com/bejaneps/csv-webapp/auth"
+	"github.com/bejaneps/csv-webapp/models"
 )
 
-// cleanTmp cleans files created in 'tmp' directory
-func cleanTmp(fileName string) {
-	_ = os.Remove(fileName)
-}
-
-// GenerateData is a function for get data button
-func GenerateData(timeRange string) error {
+// GetData is a function for get data button
+func GetData(timeRange string) (*os.File, error) {
 	ftpConn, err := auth.NewFTPConnection()
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GetData(): " + err.Error())
 	}
 	defer auth.CloseFTPConnection()
 
 	mgoClient, err := auth.NewMongoClient()
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GetData(): " + err.Error())
 	}
 	defer auth.CloseMongoClient()
 
 	mgoEntries, err := getMongoCollections(mgoClient)
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GetData(): " + err.Error())
 	}
 
 	ftpEntries, err := getFTPEntries(ftpConn)
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GetData(): " + err.Error())
 	}
 
 	for _, v := range ftpEntries {
@@ -54,34 +48,32 @@ func GenerateData(timeRange string) error {
 		if ok := hasEntry(noGZName, mgoEntries); !ok {
 			fileName, err := createFTPFile(v.Name, currDir+"/"+"files", ftpConn)
 			if err != nil {
-				return errors.New("GenerateData(): " + err.Error())
+				return nil, errors.New("GetData(): " + err.Error())
 			}
 
 			err = parseCSV(fileName)
 			if err != nil {
-				return errors.New("GenerateData(): " + err.Error())
+				return nil, errors.New("GetData(): " + err.Error())
 			}
 
 			err = createMongoCollection(noGZName, mgoClient)
 			if err != nil {
-				return errors.New("GenerateData(): " + err.Error())
+				return nil, errors.New("GetData(): " + err.Error())
 			}
 		}
 	}
 
-	//for range files
-	models.D = models.Data{}
-
 	start, end, err := parseHTMLTime(timeRange)
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GetData(): " + err.Error())
 	}
 
 	rangeEntries, err := getRangeEntries(start, end, ftpConn)
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GetData(): " + err.Error())
 	}
 
+	models.D.Datum = []models.CDRModified{}
 	for _, v := range rangeEntries {
 		//empty file
 		if v.Size == 297 {
@@ -94,33 +86,46 @@ func GenerateData(timeRange string) error {
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
 		err = parseCSV(fileName)
 		if err != nil {
-			return errors.New("GenerateData(): " + err.Error())
+			return nil, errors.New("GetData(): " + err.Error())
 		}
 	}
 
-	return nil
+	f, err := generateXLSX("get_data")
+	if err != nil {
+		return nil, errors.New("GetData(): " + err.Error())
+	}
+
+	return f, nil
 }
 
 // GenerateReport is function for get report button
-func GenerateReport(timeRange string) error {
-	models.D = models.Data{}
+func GenerateReport(timeRange string) (*os.File, error) {
+	if timeRange == "Generate Report" {
+		f, err := generateXLSX("generate_report")
+		if err != nil {
+			return nil, errors.New("GenerateReport(): " + err.Error())
+		}
+
+		return f, nil
+	}
 
 	ftpConn, err := auth.NewFTPConnection()
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GenerateReport(): " + err.Error())
 	}
 	defer auth.CloseFTPConnection()
 
 	start, end, err := parseHTMLTime(timeRange)
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GenerateReport(): " + err.Error())
 	}
 
 	rangeEntries, err := getRangeEntries(start, end, ftpConn)
 	if err != nil {
-		return errors.New("GenerateData(): " + err.Error())
+		return nil, errors.New("GenerateReport(): " + err.Error())
 	}
 
+	models.D.Datum = []models.CDRModified{}
 	for _, v := range rangeEntries {
 		//empty file
 		if v.Size == 297 {
@@ -134,9 +139,14 @@ func GenerateReport(timeRange string) error {
 		fileName := strings.TrimSuffix("files/"+v.Name, ".gz")
 		err = parseCSV(fileName)
 		if err != nil {
-			return errors.New("GenerateData(): " + err.Error())
+			return nil, errors.New("GenerateReport(): " + err.Error())
 		}
 	}
 
-	return nil
+	f, err := generateXLSX("generate_report")
+	if err != nil {
+		return nil, errors.New("GenerateReport(): " + err.Error())
+	}
+
+	return f, nil
 }

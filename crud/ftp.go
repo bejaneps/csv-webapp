@@ -90,8 +90,6 @@ func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 	}
 	defer f.Close()
 
-	log.Printf("[INFO]: created %s file\n", f.Name())
-
 	if _, err := io.Copy(f, resp); err != nil {
 		return "", errors.New("createFTPFile(): " + err.Error())
 	}
@@ -101,6 +99,8 @@ func createFTPFile(name, dir string, conn *ftp.ServerConn) (string, error) {
 		os.Remove(f.Name())
 		//return "", errors.New("createFTPFile(): " + err.Error())
 	}
+
+	log.Printf("[INFO]: unzipped %s file\n", f.Name())
 
 	err = os.Chdir(currDir)
 	if err != nil {

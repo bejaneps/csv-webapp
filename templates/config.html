@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html {
+        height: 100%;
+        font-family: 'Lato', sans-serif;
+      }
+      body {
+        background:
+          -webkit-linear-gradient(315deg, hsla(35, 95%, 55%, 1) 0%, hsla(35, 95%, 55%, 0) 70%),
+          -webkit-linear-gradient(65deg, hsla(140, 90%, 50%, 1) 10%, hsla(140, 90%, 50%, 0) 80%),
+          -webkit-linear-gradient(135deg, hsla(225, 95%, 50%, 1) 15%, hsla(225, 95%, 50%, 0) 80%),
+          -webkit-linear-gradient(205deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
+        background:
+          linear-gradient(135deg, hsla(35, 95%, 55%, 1) 0%, hsla(35, 95%, 55%, 0) 70%),
+          linear-gradient(25deg, hsla(140, 90%, 50%, 1) 10%, hsla(140, 90%, 50%, 0) 80%),
+          linear-gradient(315deg, hsla(225, 95%, 50%, 1) 15%, hsla(225, 95%, 50%, 0) 80%),
+          linear-gradient(245deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
+      }
+      form {
+        display: inline;
+      }
+      .jumbotron {
+        color: white;
+        padding-top: 1%;
+        margin-top: 2%;
+        text-align: center;
+      }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Config</title>
+
+    <link rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous">
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700"
+      rel="stylesheet">
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">CDR WebApp</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+          data-target="#alts" aria-controls="alts"
+          aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="alts">
+          <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="http://127.0.0.1:5050/config">Config
+              <i class="fas fa-cog"></i></a>
+            <a class="nav-item nav-link" href="http://127.0.0.1:5050/logout">Logout
+              <i class="fas fa-sign-out-alt"></i></a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Forms for config -->
+    <section class="container" role="main">
+      <div class="jumbotron bg-dark">
+        <form action="http://127.0.0.1:5050/config/submit"
+          methods="get" enctype="application/x-www-form-urlencoded">
+          <table class="table table-dark table-stripped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Cost/second</th>
+                <th scope="col">Min/second</th>
+                <th scope="col">Min $</th>
+                <th scope="col">Fixed</th>
+                <th scope="col">Charge if $0</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fixed to Mobile</td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="fixed_cost_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="fixed_min_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="fixed_min">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="fixed_fixed">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="fixed_charge">
+                </td>
+              </tr>
+              <tr>
+                <td>National</td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="national_cost_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="national_min_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="national_min">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="national_fixed">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="national_charge">
+                </td>
+              </tr>
+              <tr>
+                <td>International</td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="international_cost_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="international_min_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="international_min">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="international_fixed">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="international_charge">
+                </td>
+              </tr>
+              <tr>
+                <td>Intercapital City</td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="intercapital_cost_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="intercapital_min_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="intercapital_min">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="intercapital_fixed">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="intercapital_charge">
+                </td>
+              </tr>
+              <tr>
+                <td>Special</td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="special_cost_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="special_min_second">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="special_min">
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="special_fixed">
+                </td>
+                <td>
+                  <input type="text" class="form-control"
+                    name="special_charge">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <button type="submit" class="btn btn-secondary btn-lg">Submit</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous">
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous">
+    </script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous">
+    </script>
+  </body>
+</html>

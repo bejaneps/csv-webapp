@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <style>
+      html {
+        height: 100%;
+      }
+
+      body {
+        background:
+          -webkit-linear-gradient(315deg, hsla(35, 95%, 55%, 1) 0%, hsla(35, 95%, 55%, 0) 70%),
+          -webkit-linear-gradient(65deg, hsla(140, 90%, 50%, 1) 10%, hsla(140, 90%, 50%, 0) 80%),
+          -webkit-linear-gradient(135deg, hsla(225, 95%, 50%, 1) 15%, hsla(225, 95%, 50%, 0) 80%),
+          -webkit-linear-gradient(205deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
+        background:
+          linear-gradient(135deg, hsla(35, 95%, 55%, 1) 0%, hsla(35, 95%, 55%, 0) 70%),
+          linear-gradient(25deg, hsla(140, 90%, 50%, 1) 10%, hsla(140, 90%, 50%, 0) 80%),
+          linear-gradient(315deg, hsla(225, 95%, 50%, 1) 15%, hsla(225, 95%, 50%, 0) 80%),
+          linear-gradient(245deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
+        font-family: 'Lato', sans-serif;
+      }
+
+      #content {
+        padding-top: 5%;
+        text-align: center;
+      }
+
+      .btn-group-lg > .btn, .btn-lg {
+        padding: 0.1rem 1rem;
+        margin-left: 3rem;
+      }
+
+      form {
+        display: inline;
+      }
+    </style>
+    <meta charset="UTF-8">
+    <title>CDR WebApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous">
+    <script type="text/javascript"
+      src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript"
+      src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+      href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700"
+      rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">CDR WebApp</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+          data-target="#alts" aria-controls="alts"
+          aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="alts">
+          <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link" href="http://127.0.0.1:5050/config">Config
+              <i class="fas fa-cog"></i></a>
+            <a class="nav-item nav-link" href="http://127.0.0.1:5050/logout">Logout
+              <i class="fas fa-sign-out-alt"></i></a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <section id="content">
+        <form action="http://127.0.0.1:5050/data"
+          methods="get" enctype="application/x-www-form-urlencoded">
+          <input class="btn btn-light btn-lg" type="submit" name="get_data"
+            value="Get Data" />
+        </form>
+        <form action="http://127.0.0.1:5050/report"
+          methods="get" enctype="application/x-www-form-urlencoded">
+          <input class="btn btn-light btn-lg" type="submit" name="generate_report"
+            value="Generate Report" />
+        </form>
+        <br />
+        <br />
+      </section>
+    </div>
+
+    <script>
+    $('input[name="get_data"]').daterangepicker({
+      autoUpdateInput: false
+    });
+
+    $('input[name="generate_report"]').daterangepicker({
+      autoUpdateInput: false
+    });
+
+    $('input[name="get_data"]').on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+    });
+
+    $('input[name="generate_report"]').on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+    });
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous">
+    </script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous">
+    </script>
+  </body>
+
+</html>

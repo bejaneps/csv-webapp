@@ -14,6 +14,7 @@ import (
 const (
 	//connString = "mongodb+srv://bejanhtc:246150Sab!@cluster0-6tflo.mongodb.net/cdr"
 	connString = "mongodb://mongodb:27017"
+	//connString = "mongodb://127.0.0.1:27017"
 )
 
 var (

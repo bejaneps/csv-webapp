@@ -19,14 +19,7 @@ func IndexHandler(c *gin.Context) {
 		return
 	}
 
-	err := models.T.ExecuteTemplate(c.Writer, "login.template", nil)
-	if err != nil {
-		err = models.T.ExecuteTemplate(c.Writer, "error.template", err.Error())
-		if err != nil {
-			panic(err.Error())
-		}
-		return
-	}
+	c.HTML(http.StatusOK, "login.html", nil)
 }
 
 // LoginHandler handles incoming GET requests on a web-app /login path
@@ -48,16 +41,15 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	if ok, err := crud.CheckLoginInfo(info); !ok || err != nil {
-		err = models.T.ExecuteTemplate(c.Writer, "login.template", err.Error())
-		if err != nil {
-			panic(err.Error())
-		}
-		return
+		c.HTML(http.StatusInternalServerError, "login.html", err.Error())
 	}
 
 	c.SetCookie("auth", "yes", 86400, "/", "127.0.0.1", false, false)
 	c.SetCookie("auth", "yes", 86400, "/dashboard", "127.0.0.1", false, false)
+	c.SetCookie("auth", "yes", 86400, "/data", "127.0.0.1", false, false)
 	c.SetCookie("auth", "yes", 86400, "/report", "127.0.0.1", false, false)
+	c.SetCookie("auth", "yes", 86400, "/config", "127.0.0.1", false, false)
+	c.SetCookie("auth", "yes", 86400, "/config/submit", "127.0.0.1", false, false)
 
 	c.Redirect(http.StatusTemporaryRedirect, "/dashboard")
 	return

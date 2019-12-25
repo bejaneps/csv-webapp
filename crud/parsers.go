@@ -6,92 +6,13 @@ import (
 	"log"
 	"os"
 	"strings"
-	"text/template"
 	"time"
-
-	"github.com/tealeg/xlsx"
 
 	"gopkg.in/ini.v1"
 
 	"github.com/bejaneps/csv-webapp/models"
 	"github.com/bejaneps/csvutil"
 )
-
-// CSVToXLSX generates a csv file, then converts it to xlsx. Takes name of a file as a parameter.
-// Returns a file itself
-func CSVToXLSX(name string) (*os.File, error) {
-	xlsxFile := xlsx.NewFile()
-
-	sheet, err := xlsxFile.AddSheet("Sheet1")
-	if err != nil {
-		return nil, errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	//writing headers
-	headers := struct {
-		Five      string `csv:"0"`
-		Nineteen  string `csv:"1"`
-		TwentyOne string `csv:"2"`
-	}{
-		"Connect Datetime",
-		"Called Number",
-		"Location Pair Category",
-	}
-
-	row := sheet.AddRow()
-	row.WriteStruct(&headers, -1)
-
-	//writing data
-	for _, val := range models.D.Datum {
-		//writing report
-		report := struct {
-			Five      string `csv:"0"`
-			Nineteen  int    `csv:"1"`
-			TwentyOne string `csv:"2"`
-		}{
-			val.Five,
-			val.Nineteen,
-			val.TwentyOne,
-		}
-		row = sheet.AddRow()
-		row.WriteStruct(&report, -1)
-	}
-
-	//blank rows
-	sheet.AddRow()
-	sheet.AddRow()
-
-	//writing headers of last row of report
-	lHeaders := struct {
-		FixedToMobile    string `csv:"0"`
-		National         string `csv:"1"`
-		International    string `csv:"2"`
-		IntercapitalCity string `csv:"3"`
-	}{
-		"Fixed to Mobile",
-		"National",
-		"International",
-		"Intercapital City",
-	}
-	row = sheet.AddRow()
-	row.WriteStruct(&lHeaders, -1)
-
-	//writing last row of report
-	row = sheet.AddRow()
-	row.WriteStruct(&models.D.TC, -1)
-
-	err = xlsxFile.Save("/tmp/" + name)
-	if err != nil {
-		return nil, errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	f, err := os.Open("/tmp/" + name)
-	if err != nil {
-		return nil, errors.New("CSVToXLSX(): " + err.Error())
-	}
-
-	return f, nil
-}
 
 // parseHTMLTime parses time that is get from a server
 func parseHTMLTime(t string) (start, end time.Time, err error) {
@@ -119,15 +40,16 @@ func parseHTMLTime(t string) (start, end time.Time, err error) {
 
 // parseCSV parses a csv file and unmarshals all data in slice struct
 func parseCSV(file string) error {
+	//TODO: remove empty connect datetime columns(rows)
 	f, err := os.Open(file)
 	if err != nil {
-		return err
+		return errors.New("parseCSVRange(): " + err.Error())
 	}
 	defer f.Close()
 
 	content, err := ioutil.ReadAll(f)
 	if err != nil {
-		return errors.New("CSVToXLSX(): " + err.Error())
+		return errors.New("parseCSVRange(): " + err.Error())
 	}
 
 	temp := []models.CDRModified{}
@@ -136,32 +58,45 @@ func parseCSV(file string) error {
 	}
 
 	for _, v := range temp {
+		//for TC
 		if strings.Contains(v.TwentyOne, "Fixed") {
 			models.D.TC.FixedToMobile += v.Eleven
 		} else if strings.Contains(v.TwentyOne, "International") {
 			models.D.TC.International += v.Eleven
 		} else if strings.Contains(v.TwentyOne, "National") {
 			models.D.TC.National += v.Eleven
-		} else {
+		} else if strings.Contains(v.TwentyOne, "Intercapital") {
 			models.D.TC.IntercapitalCity += v.Eleven
+		} else {
+			models.D.TC.Special += v.Eleven
+		}
+
+		//for Config
+		if v.TwentyTwo == 0 {
+			if models.D.C.Charge[v.TwentyOne] == "N" || models.D.C.Charge[v.TwentyOne] == "n" {
+				v.Sell = 0
+			} else if models.D.C.Charge[v.TwentyOne] == "Y" || models.D.C.Charge[v.TwentyOne] == "y" {
+				if models.D.C.Fixed[v.TwentyOne] != 0 {
+					v.Sell = models.D.C.Fixed[v.TwentyOne]
+				} else if models.D.C.MinSecond[v.TwentyOne] != 0 {
+					if float64(v.Ten) < models.D.C.MinSecond[v.TwentyOne] {
+						v.Sell = models.D.C.MinSecond[v.TwentyOne]
+					}
+				}
+			}
+		} else {
+			amount := models.D.C.CostSecond[v.TwentyOne] * float64(v.Ten)
+			if amount < models.D.C.Min[v.TwentyOne] {
+				v.Sell = models.D.C.Min[v.TwentyOne]
+			} else {
+				v.Sell = amount
+			}
 		}
 
 		models.D.Datum = append(models.D.Datum, v)
 	}
 
 	log.Printf("[INFO]: parsed %s file\n", f.Name())
-
-	return nil
-}
-
-// ParseTemplates parses all templates
-func ParseTemplates() error {
-	var err error
-
-	models.T, err = template.ParseGlob("templates/*")
-	if err != nil {
-		return errors.New("ParseTemplates(): " + err.Error())
-	}
 
 	return nil
 }

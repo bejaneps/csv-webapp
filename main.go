@@ -28,6 +28,8 @@ var (
 var iniFile = flag.String("ini", "conf/conf.ini", "a path to ini file.")
 
 func init() {
+	models.D = models.Data{}
+
 	flag.Parse()
 
 	err = crud.ParseINI(*iniFile)
@@ -45,11 +47,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	err = crud.ParseTemplates()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	gin.SetMode("debug")
 }
 
@@ -57,12 +54,16 @@ func main() {
 	router := gin.New()
 	router.Use(gin.LoggerWithWriter(logger), gin.RecoveryWithWriter(recovery))
 
+	router.LoadHTMLGlob("templates/*")
+
 	router.GET("/", handlers.IndexHandler)
 	router.GET("/login", handlers.LoginHandler)
 	router.GET("/dashboard", handlers.DashboardHandler)
-	router.GET("/report", handlers.ReportHandler)
+	router.GET("/data", handlers.GetDataHandler)
+	router.GET("/report", handlers.GenerateReportHandler)
+	router.GET("/config", handlers.ConfigHandler)
+	router.GET("/config/submit", handlers.ConfigSubmitHandler)
 	router.GET("/logout", handlers.LogoutHandler)
-	router.GET("/report/download", handlers.ReportDownloadHandler)
 
 	var server = &http.Server{
 		Addr:    models.Port,
@@ -89,10 +90,7 @@ func main() {
 
 	<-ctx.Done()
 
-	if err := auth.CloseMongoClient(); err != nil {
-		log.Fatal(err)
-	}
-
+	auth.CloseMongoClient()
 	logger.Close()
 	recovery.Close()
 }

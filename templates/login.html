@@ -69,7 +69,7 @@
   <body>
     <div class="wrap">
       <form class="login-form" action="http://127.0.0.1:5050/login"
-        methods="post" enctype="application/x-www-form-urlencoded">
+        method="GET" enctype="application/x-www-form-urlencoded">
         {{$err := .}}
         {{if $err}}
         <div class="form-header">
@@ -77,7 +77,7 @@
         </div>
         {{else}}
         <div class="form-header">
-                <p>login to access your dashboard</p>
+          <p>login to access your dashboard</p>
         </div>
         {{end}}
         <!--Email Input-->
