@@ -97,11 +97,13 @@ func generateXLSX(button string) (*os.File, error) {
 			National         string `csv:"1"`
 			International    string `csv:"2"`
 			IntercapitalCity string `csv:"3"`
+			Special          string `csv:"4"`
 		}{
 			"Fixed to Mobile",
 			"National",
 			"International",
 			"Intercapital City",
+			"Special",
 		}
 		row = sheet.AddRow()
 		row.WriteStruct(&lHeaders, -1)
