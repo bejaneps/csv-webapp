@@ -19,6 +19,7 @@
           linear-gradient(245deg, hsla(340, 100%, 55%, 1) 100%, hsla(340, 100%, 55%, 0) 70%);
       }
       form {
+        margin-left: 2%;
         display: inline;
       }
       .jumbotron {
@@ -190,7 +191,12 @@
               </tr>
             </tbody>
           </table>
-          <button type="submit" class="btn btn-secondary btn-lg">Submit</button>
+          <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+        </form>
+        <form action="http://127.0.0.1:5050/config/submit"
+          methods="get" enctype="application/x-www-form-urlencoded">
+          <input class="btn btn-secondary btn-lg" type="submit" name="reset"
+            value="Reset" />
         </form>
       </div>
     </section>

@@ -37,18 +37,19 @@ type TotalCharged struct {
 
 // Config represents struct of Config Page
 type Config struct {
-	CostSecond map[string]float64
-	MinSecond  map[string]float64
-	Min        map[string]float64
-	Fixed      map[string]float64
-	Charge     map[string]string
+	Initialized bool
+	CostSecond  map[string]float64
+	MinSecond   map[string]float64
+	Min         map[string]float64
+	Fixed       map[string]float64
+	Charge      map[string]string
 }
 
 // CDRModified represents a data from a cdr file, but with some columns removed
 type CDRModified struct {
 	Five        string  `csv:"Connect Datetime" bson:"Connect Datetime"`
 	Six         string  `csv:"Disconnect Datetime" bson:"Disconnect Datetime"`
-	Ten         int     `csv:"Charged Duration (Seconds)" bson:"Charged Duration (Seconds)"`
+	Ten         float64 `csv:"Charged Duration (Seconds)" bson:"Charged Duration (Seconds)"`
 	Eleven      float64 `csv:"Charged Duration (Minutes)" bson:"Charged Duration (Minutes)"`
 	Thirteen    int     `csv:"Calling Number" bson:"Calling Number"`
 	Nineteen    int     `csv:"Called Number" bson:"Called Number"`

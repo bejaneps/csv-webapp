@@ -72,20 +72,34 @@ func parseCSV(file string) error {
 		}
 
 		//for Config
+		done := false
 		if v.TwentyTwo == 0 {
 			if models.D.C.Charge[v.TwentyOne] == "N" || models.D.C.Charge[v.TwentyOne] == "n" {
 				v.Sell = 0
+				done = true
 			} else if models.D.C.Charge[v.TwentyOne] == "Y" || models.D.C.Charge[v.TwentyOne] == "y" {
 				if models.D.C.Fixed[v.TwentyOne] != 0 {
 					v.Sell = models.D.C.Fixed[v.TwentyOne]
+					done = true
 				} else if models.D.C.MinSecond[v.TwentyOne] != 0 {
-					if float64(v.Ten) < models.D.C.MinSecond[v.TwentyOne] {
-						v.Sell = models.D.C.MinSecond[v.TwentyOne]
+					if v.Ten < models.D.C.MinSecond[v.TwentyOne] {
+						v.Ten = models.D.C.MinSecond[v.TwentyOne]
 					}
 				}
 			}
-		} else {
-			amount := models.D.C.CostSecond[v.TwentyOne] * float64(v.Ten)
+		} else if models.D.C.Fixed[v.TwentyOne] != 0 {
+			v.Sell = models.D.C.Fixed[v.TwentyOne]
+			done = true
+		}
+
+		if !done {
+			if models.D.C.MinSecond[v.TwentyOne] != 0 {
+				if v.Ten < models.D.C.MinSecond[v.TwentyOne] {
+					v.Ten = models.D.C.MinSecond[v.TwentyOne]
+				}
+			}
+
+			amount := models.D.C.CostSecond[v.TwentyOne] * v.Ten
 			if amount < models.D.C.Min[v.TwentyOne] {
 				v.Sell = models.D.C.Min[v.TwentyOne]
 			} else {

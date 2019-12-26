@@ -70,7 +70,7 @@ func generateXLSX(button string) (*os.File, error) {
 			//writing report
 			report := struct {
 				Five      string  `csv:"0"`
-				Ten       int     `csv:"1"`
+				Ten       float64 `csv:"1"`
 				Nineteen  int     `csv:"2"`
 				TwentyOne string  `csv:"3"`
 				Sell      float64 `csv:"4"`
@@ -126,4 +126,5 @@ func InitConfig() {
 	models.D.C.Min = make(map[string]float64)
 	models.D.C.Fixed = make(map[string]float64)
 	models.D.C.Charge = make(map[string]string)
+	models.D.C.Initialized = true
 }
