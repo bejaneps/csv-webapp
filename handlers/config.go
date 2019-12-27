@@ -32,6 +32,7 @@ func ConfigSubmitHandler(c *gin.Context) {
 
 	if val := c.Query("reset"); val != "" || !models.D.C.Initialized {
 		crud.InitConfig()
+		c.Redirect(http.StatusTemporaryRedirect, "/config")
 	}
 
 	var err error
