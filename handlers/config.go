@@ -19,7 +19,11 @@ func ConfigHandler(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "config.html", nil)
+	if !models.D.C.Initialized {
+		c.HTML(http.StatusOK, "config.html", nil)
+	} else {
+		c.HTML(http.StatusOK, "config.html", models.D.C)
+	}
 }
 
 // ConfigSubmitHandler handles upcoming requests on /config/submit path
@@ -30,9 +34,14 @@ func ConfigSubmitHandler(c *gin.Context) {
 		return
 	}
 
-	if val := c.Query("reset"); val != "" || !models.D.C.Initialized {
+	if val := c.Query("reset"); val != "" {
 		crud.InitConfig()
 		c.Redirect(http.StatusTemporaryRedirect, "/config")
+		return
+	}
+
+	if !models.D.C.Initialized {
+		crud.InitConfig()
 	}
 
 	var err error
