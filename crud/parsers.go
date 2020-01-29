@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"gopkg.in/ini.v1"
@@ -39,80 +41,91 @@ func parseHTMLTime(t string) (start, end time.Time, err error) {
 }
 
 // parseCSV parses a csv file and unmarshals all data in slice struct
-func parseCSV(file string) error {
-	//TODO: remove empty connect datetime columns(rows)
-	f, err := os.Open(file)
-	if err != nil {
-		return errors.New("parseCSVRange(): " + err.Error())
-	}
-	defer f.Close()
+func parseCSV(csvFileName <-chan string, mongoColl chan<- string, w *sync.WaitGroup, errChan chan<- error) {
+	for n := range csvFileName {
+		f, err := os.Open(n)
+		if err != nil {
+			errChan <- errors.New("parseCSVRange(): " + err.Error())
+			return
+		}
+		defer f.Close()
 
-	content, err := ioutil.ReadAll(f)
-	if err != nil {
-		return errors.New("parseCSVRange(): " + err.Error())
-	}
-
-	temp := []models.CDRModified{}
-	if err = csvutil.Unmarshal(content, &temp); err != nil {
-		return errors.New("parseCSVRange(): " + err.Error())
-	}
-
-	for _, v := range temp {
-		//for TC
-		if strings.Contains(v.TwentyOne, "Fixed") {
-			models.D.TC.FixedToMobile += v.Eleven
-		} else if strings.Contains(v.TwentyOne, "International") {
-			models.D.TC.International += v.Eleven
-		} else if strings.Contains(v.TwentyOne, "National") {
-			models.D.TC.National += v.Eleven
-		} else if strings.Contains(v.TwentyOne, "Intercapital") {
-			models.D.TC.IntercapitalCity += v.Eleven
-		} else {
-			models.D.TC.Special += v.Eleven
+		content, err := ioutil.ReadAll(f)
+		if err != nil {
+			errChan <- errors.New("parseCSVRange(): " + err.Error())
+			return
 		}
 
-		//for Config
-		done := false
-		if v.TwentyTwo == 0 {
-			if models.D.C.Charge[v.TwentyOne] == "N" || models.D.C.Charge[v.TwentyOne] == "n" {
-				v.Sell = 0
-				done = true
-			} else if models.D.C.Charge[v.TwentyOne] == "Y" || models.D.C.Charge[v.TwentyOne] == "y" {
-				if models.D.C.Fixed[v.TwentyOne] != 0 {
-					v.Sell = models.D.C.Fixed[v.TwentyOne]
+		temp := []models.CDRModified{}
+		if err = csvutil.Unmarshal(content, &temp); err != nil {
+			errChan <- errors.New("parseCSVRange(): " + err.Error())
+			return
+		}
+
+		for _, v := range temp {
+			//for TC
+			if strings.Contains(v.TwentyOne, "Fixed") {
+				models.D.TC.FixedToMobile += v.Eleven
+			} else if strings.Contains(v.TwentyOne, "International") {
+				models.D.TC.International += v.Eleven
+			} else if strings.Contains(v.TwentyOne, "National") {
+				models.D.TC.National += v.Eleven
+			} else if strings.Contains(v.TwentyOne, "Intercapital") {
+				models.D.TC.IntercapitalCity += v.Eleven
+			} else {
+				models.D.TC.Special += v.Eleven
+			}
+
+			//for Config
+			done := false
+			if v.TwentyTwo == 0 {
+				if models.D.C.Charge[v.TwentyOne] == "N" || models.D.C.Charge[v.TwentyOne] == "n" {
+					v.Sell = 0
 					done = true
-				} else if models.D.C.MinSecond[v.TwentyOne] != 0 {
+				} else if models.D.C.Charge[v.TwentyOne] == "Y" || models.D.C.Charge[v.TwentyOne] == "y" {
+					if models.D.C.Fixed[v.TwentyOne] != 0 {
+						v.Sell = models.D.C.Fixed[v.TwentyOne]
+						done = true
+					} else if models.D.C.MinSecond[v.TwentyOne] != 0 {
+						if v.Ten < models.D.C.MinSecond[v.TwentyOne] {
+							v.Ten = models.D.C.MinSecond[v.TwentyOne]
+						}
+					}
+				}
+			} else if models.D.C.Fixed[v.TwentyOne] != 0 {
+				v.Sell = models.D.C.Fixed[v.TwentyOne]
+				done = true
+			}
+
+			if !done {
+				if models.D.C.MinSecond[v.TwentyOne] != 0 {
 					if v.Ten < models.D.C.MinSecond[v.TwentyOne] {
 						v.Ten = models.D.C.MinSecond[v.TwentyOne]
 					}
 				}
-			}
-		} else if models.D.C.Fixed[v.TwentyOne] != 0 {
-			v.Sell = models.D.C.Fixed[v.TwentyOne]
-			done = true
-		}
 
-		if !done {
-			if models.D.C.MinSecond[v.TwentyOne] != 0 {
-				if v.Ten < models.D.C.MinSecond[v.TwentyOne] {
-					v.Ten = models.D.C.MinSecond[v.TwentyOne]
+				amount := models.D.C.CostSecond[v.TwentyOne] * v.Ten
+				if amount < models.D.C.Min[v.TwentyOne] {
+					v.Sell = models.D.C.Min[v.TwentyOne]
+				} else {
+					v.Sell = amount
 				}
 			}
 
-			amount := models.D.C.CostSecond[v.TwentyOne] * v.Ten
-			if amount < models.D.C.Min[v.TwentyOne] {
-				v.Sell = models.D.C.Min[v.TwentyOne]
-			} else {
-				v.Sell = amount
-			}
+			models.D.Datum = append(models.D.Datum, v)
 		}
 
-		models.D.Datum = append(models.D.Datum, v)
+		log.Printf("[INFO]: parsed %s file\n", f.Name())
+
+		if mongoColl != nil {
+			mongoColl <- filepath.Base(f.Name())
+		}
 	}
+	w.Done()
 
-	log.Printf("[INFO]: parsed %s file\n", f.Name())
-
-	return nil
+	if mongoColl != nil {
+		close(mongoColl)
+	}
 }
 
 // ParseINI parses ini file and umarshalls all data to global variables

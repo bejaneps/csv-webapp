@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"sync"
 
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -57,24 +58,26 @@ func hasEntry(entry string, entries []string) bool {
 }
 
 // createMongoCollection creates a collection in a Mongo DB
-func createMongoCollection(name string, mgoClient *mongo.Client) error {
-	if len(models.D.Datum) == 0 {
-		return nil
+func createMongoCollection(mongoColl <-chan string, mgoClient *mongo.Client, w *sync.WaitGroup, errChan chan<- error) {
+	for m := range mongoColl {
+		if len(models.D.Datum) == 0 {
+			return
+		}
+		collection := mgoClient.Database("cdr").Collection(m)
+
+		//can't use []Datum as type []interface{}
+		temp := make([]interface{}, len(models.D.Datum))
+		for i, v := range models.D.Datum {
+			temp[i] = v
+		}
+
+		_, err := collection.InsertMany(context.TODO(), temp)
+		if err != nil {
+			errChan <- errors.New("createMongoCollection(): " + err.Error())
+			return
+		}
+
+		log.Printf("[INFO]: created %s mongo collection\n", collection.Name())
 	}
-	collection := mgoClient.Database("cdr").Collection(name)
-
-	//can't use []Datum as type []interface{}
-	temp := make([]interface{}, len(models.D.Datum))
-	for i, v := range models.D.Datum {
-		temp[i] = v
-	}
-
-	_, err := collection.InsertMany(context.TODO(), temp)
-	if err != nil {
-		return errors.New("createMongoCollection(): " + err.Error())
-	}
-
-	log.Printf("[INFO]: created %s mongo collection\n", collection.Name())
-
-	return nil
+	w.Done()
 }
