@@ -112,6 +112,12 @@ func parseCSV(csvFileName <-chan string, mongoColl chan<- string, w *sync.WaitGr
 				}
 			}
 
+			// international always 1.5x
+			if v.TwentyOne == "International" {
+				v.Sell = models.D.C.CostSecond[v.TwentyOne] * 1.5
+				continue
+			}
+
 			models.D.Datum = append(models.D.Datum, v)
 		}
 
