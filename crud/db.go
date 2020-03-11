@@ -6,8 +6,6 @@ import (
 	"log"
 	"sync"
 
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/bejaneps/csv-webapp/auth"
 	"github.com/bejaneps/csv-webapp/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,7 +17,7 @@ func CheckLoginInfo(info models.LoginInfo) (bool, error) {
 	if err != nil {
 		return false, errors.New("CheckLoginInfo(): " + err.Error())
 	}
-	defer auth.CloseMongoClient()
+	defer auth.CloseMongoClient(client)
 
 	collection := client.Database("cdr").Collection("users")
 
@@ -38,7 +36,14 @@ func CheckLoginInfo(info models.LoginInfo) (bool, error) {
 }
 
 // getMongoCollections returns names of collections in MongoDB
-func getMongoCollections(client *mongo.Client) ([]string, error) {
+func getMongoCollections() ([]string, error) {
+	client, err := auth.NewMongoClient()
+	if err != nil {
+		defer auth.CloseMongoClient(client)
+		return nil, errors.New("getMongoCollections(): " + err.Error())
+	}
+	defer auth.CloseMongoClient(client)
+
 	names, err := client.Database("cdr").ListCollectionNames(context.TODO(), bson.D{})
 	if err != nil {
 		return nil, errors.New("getMongoCollections(): " + err.Error())
@@ -58,11 +63,19 @@ func hasEntry(entry string, entries []string) bool {
 }
 
 // createMongoCollection creates a collection in a Mongo DB
-func createMongoCollection(mongoColl <-chan string, mgoClient *mongo.Client, w *sync.WaitGroup, errChan chan<- error) {
+func createMongoCollection(mongoColl <-chan string, w *sync.WaitGroup, errChan chan<- error) {
 	for m := range mongoColl {
+		mgoClient, err := auth.NewMongoClient()
+		if err != nil {
+			defer auth.CloseMongoClient(mgoClient)
+			errChan <- errors.New("createMongoCollection(): " + err.Error())
+			return
+		}
+
 		if len(models.D.Datum) == 0 {
 			return
 		}
+
 		collection := mgoClient.Database("cdr").Collection(m)
 
 		//can't use []Datum as type []interface{}
@@ -71,13 +84,15 @@ func createMongoCollection(mongoColl <-chan string, mgoClient *mongo.Client, w *
 			temp[i] = v
 		}
 
-		_, err := collection.InsertMany(context.TODO(), temp)
+		_, err = collection.InsertMany(context.TODO(), temp)
 		if err != nil {
 			errChan <- errors.New("createMongoCollection(): " + err.Error())
 			return
 		}
 
 		log.Printf("[INFO]: created %s mongo collection\n", collection.Name())
+
+		auth.CloseMongoClient(mgoClient)
 	}
 	w.Done()
 }

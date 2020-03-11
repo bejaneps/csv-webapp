@@ -47,7 +47,7 @@ func getRangeEntries(start, end time.Time, conn *ftp.ServerConn) ([]*ftp.Entry, 
 	if err != nil {
 		return nil, err
 	}
-	defer auth.CloseFTPConnection()
+	defer auth.CloseFTPConnection(ftpConn)
 
 	entries, err := getFTPEntries(ftpConn)
 	if err != nil {

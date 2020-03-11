@@ -7,13 +7,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
 	"github.com/bejaneps/csv-webapp/crud"
 	"github.com/bejaneps/csv-webapp/models"
-
-	"github.com/bejaneps/csv-webapp/auth"
 
 	"github.com/bejaneps/csv-webapp/handlers"
 	"github.com/gin-gonic/gin"
@@ -51,6 +50,8 @@ func init() {
 }
 
 func main() {
+	runtime.GOMAXPROCS(4)
+
 	router := gin.New()
 	router.Use(gin.LoggerWithWriter(logger), gin.RecoveryWithWriter(recovery))
 
@@ -90,7 +91,6 @@ func main() {
 
 	<-ctx.Done()
 
-	auth.CloseMongoClient()
 	logger.Close()
 	recovery.Close()
 }

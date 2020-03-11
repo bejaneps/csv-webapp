@@ -13,22 +13,19 @@ import (
 
 const (
 	//connString = "mongodb+srv://bejanhtc:246150Sab!@cluster0-6tflo.mongodb.net/cdr"
-	connString = "mongodb://mongodb:27017"
-	//connString = "mongodb://127.0.0.1:27017"
+	//connString = "mongodb://mongodb:27017"
+	connString = "mongodb://127.0.0.1:27017"
 )
 
 var (
-	ftpConn = &ftp.ServerConn{}
-
-	mgoClient = &mongo.Client{}
-	err       error
+	err error
 )
 
 // NewMongoClient returns new MongoDB client instance
 func NewMongoClient() (*mongo.Client, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	mgoClient, err = mongo.Connect(ctx, options.Client().SetSocketTimeout(5*time.Hour).ApplyURI(connString))
+	mgoClient, err := mongo.Connect(ctx, options.Client().SetSocketTimeout(5*time.Hour).ApplyURI(connString).SetMaxPoolSize(10).SetMaxConnIdleTime(2*time.Minute).SetSocketTimeout(2*time.Minute))
 	if err != nil {
 		return nil, errors.New("NewMongoClient(): " + err.Error())
 	}
@@ -44,7 +41,7 @@ func NewMongoClient() (*mongo.Client, error) {
 
 // NewFTPConnection returns a connection to ftp server
 func NewFTPConnection() (*ftp.ServerConn, error) {
-	ftpConn, err = ftp.Dial(models.FTPURI, ftp.DialWithTimeout(10*time.Second))
+	ftpConn, err := ftp.Dial(models.FTPURI, ftp.DialWithTimeout(10*time.Second))
 	if err != nil {
 		return nil, errors.New("NewFTPConnection(): " + err.Error())
 	}
@@ -57,8 +54,8 @@ func NewFTPConnection() (*ftp.ServerConn, error) {
 	return ftpConn, nil
 }
 
-// CloseMongoClient closes a connectio to MongoDB cluster
-func CloseMongoClient() error {
+// CloseMongoClient closes a connection to MongoDB client
+func CloseMongoClient(mgoClient *mongo.Client) error {
 	if err := mgoClient.Disconnect(context.TODO()); err != nil {
 		return errors.New("CloseMongoClient(): " + err.Error())
 	}
@@ -67,7 +64,7 @@ func CloseMongoClient() error {
 }
 
 // CloseFTPConnection closes a connection to ftp server
-func CloseFTPConnection() error {
+func CloseFTPConnection(ftpConn *ftp.ServerConn) error {
 	if err := ftpConn.Quit(); err != nil {
 		return errors.New("CloseFTPConnection(): " + err.Error())
 	}

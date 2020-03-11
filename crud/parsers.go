@@ -45,6 +45,7 @@ func parseCSV(csvFileName <-chan string, mongoColl chan<- string, w *sync.WaitGr
 	for n := range csvFileName {
 		f, err := os.Open(n)
 		if err != nil {
+			defer f.Close()
 			errChan <- errors.New("parseCSVRange(): " + err.Error())
 			return
 		}

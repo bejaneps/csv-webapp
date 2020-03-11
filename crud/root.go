@@ -21,15 +21,9 @@ func GetData(timeRange string) (*os.File, error) {
 	if err != nil {
 		return nil, errors.New("GetData(): " + err.Error())
 	}
-	defer auth.CloseFTPConnection()
+	defer auth.CloseFTPConnection(ftpConn)
 
-	mgoClient, err := auth.NewMongoClient()
-	if err != nil {
-		return nil, errors.New("GetData(): " + err.Error())
-	}
-	defer auth.CloseMongoClient()
-
-	mgoEntries, err := getMongoCollections(mgoClient)
+	mgoEntries, err := getMongoCollections()
 	if err != nil {
 		return nil, errors.New("GetData(): " + err.Error())
 	}
@@ -49,7 +43,7 @@ func GetData(timeRange string) (*os.File, error) {
 	//start main goroutines
 	go createFTPFile(ftpFileName, ftpConn, csvFileName, w, errChan)
 	go parseCSV(csvFileName, mongoCollName, w, errChan)
-	go createMongoCollection(mongoCollName, mgoClient, w, errChan)
+	go createMongoCollection(mongoCollName, w, errChan)
 	w.Add(3)
 
 	//debug errors on separate goroutine
@@ -151,7 +145,7 @@ func GenerateReport(timeRange string) (*os.File, error) {
 	if err != nil {
 		return nil, errors.New("GenerateReport(): " + err.Error())
 	}
-	defer auth.CloseFTPConnection()
+	defer auth.CloseFTPConnection(ftpConn)
 
 	start, end, err := parseHTMLTime(timeRange)
 	if err != nil {
