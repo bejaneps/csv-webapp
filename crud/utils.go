@@ -86,10 +86,6 @@ func generateXLSX(button string) (*os.File, error) {
 				continue
 			}
 
-			if val.TwentyOne == "International" {
-				val.Sell *= 1.5
-			}
-
 			row = sheet.AddRow()
 			row.WriteStruct(&report, -1)
 		}
